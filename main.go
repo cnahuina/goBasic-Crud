@@ -28,9 +28,22 @@ func GetPeopleEndPoint(w http.ResponseWriter, req *http.Request){
 	json.NewEncoder(w).Encode(people)
 }
 func GetPersonEndPoint(w http.ResponseWriter, req *http.Request){
-
+	params := mux.Vars(req)
+	for _ , item := range people{
+		if item.ID == params ["id"]{
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&Person{})
 }
-func CreatePersonEndPoint(w http.ResponseWriter, r *http.Request){
+func CreatePersonEndPoint(w http.ResponseWriter, req *http.Request){
+	params := mux.Vars(req)
+	var person Person
+	_ = json.NewDecoder(req.Body).Decode(&person)
+	person.ID = params["id"]
+	people = append(people,person)
+	json.NewEncoder(w).Encode(people)
 
 }
 func DeletePersonEndPoint(w http.ResponseWriter, r *http.Request){
@@ -55,6 +68,6 @@ func main () {
 	router.HandleFunc("/people/{id}", DeletePersonEndPoint).Methods("DELETE")
 
 	//Escuchar al servidor , anteponiendo un log por si ocurre algun error en el servidor cuando inicie
-	log.Fatal(http.ListenAndServe(":3000", router))
+	log.Fatal(http.ListenAndServe(":3002", router))
 }
 
